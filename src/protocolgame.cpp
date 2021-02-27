@@ -2957,20 +2957,16 @@ void ProtocolGame::AddPlayerStats(NetworkMessage& msg)
 	msg.add<uint16_t>(player->getLevel());
 	msg.addByte(player->getLevelPercent());
 
-	msg.add<uint16_t>(100); // base xp gain rate
-	msg.add<uint16_t>(0); // xp voucher
-	msg.add<uint16_t>(0); // low level bonus
-	msg.add<uint16_t>(0); // xp boost
-	msg.add<uint16_t>(100); // stamina multiplier (100 = x1.0)
+	msg.addDouble(0, 3); // experience bonus
 
-	msg.add<uint16_t>(std::min<int32_t>(player->getMana(), std::numeric_limits<uint16_t>::max()));
-	msg.add<uint16_t>(std::min<int32_t>(player->getMaxMana(), std::numeric_limits<uint16_t>::max()));
+	msg.add<uint16_t>(0); // TODO: remove
+	msg.add<uint16_t>(0); // TODO: Remove
 
-	msg.addByte(std::min<uint32_t>(player->getMagicLevel(), std::numeric_limits<uint8_t>::max()));
-	msg.addByte(std::min<uint32_t>(player->getBaseMagicLevel(), std::numeric_limits<uint8_t>::max()));
-	msg.addByte(player->getMagicLevelPercent());
+	msg.addByte(0); // TODO: remove
+	msg.addByte(0); // TODO: remove
+	msg.addByte(0); // TODO: remove
 
-	msg.addByte(player->getSoul());
+	msg.addByte(0); // TODO: remove
 
 	msg.add<uint16_t>(player->getStaminaMinutes());
 
@@ -2979,10 +2975,7 @@ void ProtocolGame::AddPlayerStats(NetworkMessage& msg)
 	Condition* condition = player->getCondition(CONDITION_REGENERATION);
 	msg.add<uint16_t>(condition ? condition->getTicks() / 1000 : 0x00);
 
-	msg.add<uint16_t>(player->getOfflineTrainingTime() / 60 / 1000);
-
-	msg.add<uint16_t>(0); // xp boost time (seconds)
-	msg.addByte(0); // enables exp boost in the store
+	msg.add<uint16_t>(0); // offline training, removed
 }
 
 void ProtocolGame::AddPlayerSkills(NetworkMessage& msg)
