@@ -115,7 +115,7 @@ bool IOLoginData::loginserverAuthentication(const std::string& name, const std::
 	return true;
 }
 
-uint32_t IOLoginData::gameworldAuthentication(const std::string& accountName, const std::string& password, std::string& characterName, std::string& token, uint32_t tokenTime)
+uint32_t IOLoginData::gameWorldAuthentication(const std::string& accountName, const std::string& password, std::string& characterName)
 {
 	Database& db = Database::getInstance();
 
@@ -124,18 +124,6 @@ uint32_t IOLoginData::gameworldAuthentication(const std::string& accountName, co
 	DBResult_ptr result = db.storeQuery(query.str());
 	if (!result) {
 		return 0;
-	}
-
-	std::string secret = decodeSecret(result->getString("secret"));
-	if (!secret.empty()) {
-		if (token.empty()) {
-			return 0;
-		}
-
-		bool tokenValid = token == generateToken(secret, tokenTime) || token == generateToken(secret, tokenTime - 1) || token == generateToken(secret, tokenTime + 1);
-		if (!tokenValid) {
-			return 0;
-		}
 	}
 
 	if (transformToSHA1(password) != result->getString("password")) {
