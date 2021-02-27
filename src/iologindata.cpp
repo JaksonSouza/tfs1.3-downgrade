@@ -48,7 +48,7 @@ Account IOLoginData::loadAccount(uint32_t accno)
 bool IOLoginData::saveAccount(const Account& acc)
 {
 	std::ostringstream query;
-	query << "UPDATE `accounts` SET `premium_ends_at` = " << acc.premiumEndsAt << " WHERE `id` = " << acc.id;
+	query << "UPDATE `accounts` SET `premdays` = " << acc.premiumDays << ", `lastday` = " << acc.lastDay << " WHERE `id` = " << acc.id;
 	return Database::getInstance().executeQuery(query.str());
 }
 
