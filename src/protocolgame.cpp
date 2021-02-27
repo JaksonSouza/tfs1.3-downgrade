@@ -338,9 +338,7 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 	}
 
 	OperatingSystem_t operatingSystem = static_cast<OperatingSystem_t>(msg.get<uint16_t>());
-	version = msg.get<uint16_t>();
-
-	msg.skipBytes(7); // U32 client version, U8 client type, U16 dat revision
+	msg.skipBytes(7); // U16 version, U32 client version, U8 client type, U16 dat revision
 
 	if (!Protocol::RSA_decrypt(msg)) {
 		disconnect();
@@ -365,46 +363,20 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 
 	msg.skipBytes(1); // gamemaster flag
 
-	std::string sessionKey = msg.getString();
 
-	auto sessionArgs = explodeString(sessionKey, "\n", 4);
-	if (sessionArgs.size() != 4) {
-		disconnect();
-		return;
-	}
-
-	std::string& accountName = sessionArgs[0];
-	std::string& password = sessionArgs[1];
-	std::string& token = sessionArgs[2];
-	uint32_t tokenTime = 0;
-	try {
-		tokenTime = std::stoul(sessionArgs[3]);
-	} catch (const std::invalid_argument&) {
-		disconnectClient("Malformed token packet.");
-		return;
-	} catch (const std::out_of_range&) {
-		disconnectClient("Token time is too long.");
-		return;
-	}
-
+	std::string accountName = msg.getString();
+	std::string characterName = msg.getString();
+	std::string password = msg.getString();
+	uint32_t timeStamp = msg.get<uint32_t>();
+	uint8_t randNumber = msg.getByte();
+	
 	if (accountName.empty()) {
 		disconnectClient("You must enter your account name.");
 		return;
 	}
 
-	std::string characterName = msg.getString();
-
-	uint32_t timeStamp = msg.get<uint32_t>();
-	uint8_t randNumber = msg.getByte();
 	if (challengeTimestamp != timeStamp || challengeRandom != randNumber) {
 		disconnect();
-		return;
-	}
-
-	if (version < CLIENT_VERSION_MIN || version > CLIENT_VERSION_MAX) {
-		std::ostringstream ss;
-		ss << "Only clients with protocol " << CLIENT_VERSION_STR << " allowed!";
-		disconnectClient(ss.str());
 		return;
 	}
 
@@ -430,7 +402,7 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
-	uint32_t accountId = IOLoginData::gameworldAuthentication(accountName, password, characterName, token, tokenTime);
+	uint32_t accountId = IOLoginData::gameWorldAuthentication(accountName, password, characterName);
 	if (accountId == 0) {
 		disconnectClient("Account name or password is not correct.");
 		return;
