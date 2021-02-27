@@ -32,7 +32,7 @@ class IOLoginData
 		static Account loadAccount(uint32_t accno);
 		static bool saveAccount(const Account& acc);
 
-		static bool loginserverAuthentication(const std::string& name, const std::string& password, Account& account);
+		static bool loginServerAuthentication(const std::string& name, const std::string& password, Account& account);
 		static uint32_t gameWorldAuthentication(const std::string& accountName, const std::string& password, std::string& characterName);
 		static uint32_t getAccountIdByPlayerName(const std::string& playerName);
 
