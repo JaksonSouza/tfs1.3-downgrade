@@ -2280,7 +2280,6 @@ void ProtocolGame::sendChangeSpeed(const Creature* creature, uint32_t speed)
 	NetworkMessage msg;
 	msg.addByte(0x8F);
 	msg.add<uint32_t>(creature->getID());
-	msg.add<uint16_t>(creature->getBaseSpeed() / 2);
 	msg.add<uint16_t>(speed / 2);
 	writeToOutputBuffer(msg);
 }
