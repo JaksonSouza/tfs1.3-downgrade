@@ -31,7 +31,7 @@ Account IOLoginData::loadAccount(uint32_t accno)
 	Account account;
 
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `password`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `id` = " << accno;
+	query << "SELECT `id`, `name`, `password`, `type`, `premium_ends_at` FROM `accounts` WHERE `id` = " << accno;
 	DBResult_ptr result = Database::getInstance().storeQuery(query.str());
 	if (!result) {
 		return account;
@@ -40,15 +40,14 @@ Account IOLoginData::loadAccount(uint32_t accno)
 	account.id = result->getNumber<uint32_t>("id");
 	account.name = result->getString("name");
 	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
-	account.premiumDays = result->getNumber<uint16_t>("premdays");
-	account.lastDay = result->getNumber<time_t>("lastday");
+	account.premiumEndsAt = result->getNumber<time_t>("premium_ends_at");
 	return account;
 }
 
 bool IOLoginData::saveAccount(const Account& acc)
 {
 	std::ostringstream query;
-	query << "UPDATE `accounts` SET `premdays` = " << acc.premiumDays << ", `lastday` = " << acc.lastDay << " WHERE `id` = " << acc.id;
+	query << "UPDATE `accounts` SET `premium_ends_at` = " << acc.premiumEndsAt << " WHERE `id` = " << acc.id;
 	return Database::getInstance().executeQuery(query.str());
 }
 
@@ -86,7 +85,7 @@ bool IOLoginData::loginServerAuthentication(const std::string& name, const std::
 	Database& db = Database::getInstance();
 
 	std::ostringstream query;
-	query << "SELECT `id`, `name`, `password`, `secret`, `type`, `premdays`, `lastday` FROM `accounts` WHERE `name` = " << db.escapeString(name);
+	query << "SELECT `id`, `name`, `password`, `secret`, `type`, `premium_ends_at` FROM `accounts` WHERE `name` = " << db.escapeString(name);
 	DBResult_ptr result = db.storeQuery(query.str());
 	if (!result) {
 		return false;
@@ -100,8 +99,8 @@ bool IOLoginData::loginServerAuthentication(const std::string& name, const std::
 	account.name = result->getString("name");
 	account.key = decodeSecret(result->getString("secret"));
 	account.accountType = static_cast<AccountType_t>(result->getNumber<int32_t>("type"));
-	account.premiumDays = result->getNumber<uint16_t>("premdays");
-	account.lastDay = result->getNumber<time_t>("lastday");
+	account.premiumEndsAt = result->getNumber<time_t>("premium_ends_at");
+	//account.lastDay = result->getNumber<time_t>("lastday");
 
 	query.str(std::string());
 	query << "SELECT `name`, `deletion` FROM `players` WHERE `account_id` = " << account.id;
